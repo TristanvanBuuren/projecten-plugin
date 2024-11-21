@@ -38,6 +38,7 @@ function database_creation(){
         website_link           varchar(255),
         github_link            varchar(255),
         image_link             varchar(255),
+        checkbox_hidden        tinyint(1),
         PRIMARY KEY            (project_ID)
     ) $charset;";
 

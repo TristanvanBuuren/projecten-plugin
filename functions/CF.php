@@ -39,6 +39,7 @@ function CF()
     $temp_website_link = $wpdb->get_var("SELECT `website_link` FROM $db WHERE `project_ID` = $project_id");
     $temp_github_link = $wpdb->get_var("SELECT `github_link` FROM $db WHERE `project_ID` = $project_id");
     $temp_image_link = $wpdb->get_var("SELECT `image_link` FROM $db WHERE `project_ID` = $project_id");
+    $temp_checkbox_hidden = $wpdb->get_var("SELECT `checkbox_hidden` FROM $db WHERE `project_ID` = $project_id");
     ?>
 
     <p class="text">Website Link</p>
@@ -57,6 +58,8 @@ function CF()
             <img id="current-image-preview" class="image-preview" style="display: none;" alt="No Image">
         <?php endif; ?>
     </div>
+    <p class="text">Hidden project</p>
+    <input type="checkbox" name="checkbox_hidden" <?= ($temp_checkbox_hidden == 1) ? 'checked' : '' ; ?>>
 
     <script>
         document.getElementById('project-image-input').addEventListener('change', function(event) {
@@ -88,11 +91,13 @@ function save_custom_fields($post_id)
         $temp_website_link = $wpdb->get_var("SELECT `website_link` FROM $db WHERE `project_ID` = $project_id");
         $temp_github_link = $wpdb->get_var("SELECT `github_link` FROM $db WHERE `project_ID` = $project_id");
         $temp_image_link = $wpdb->get_var("SELECT `image_link` FROM $db WHERE `project_ID` = $project_id");
+        $temp_checkbox_hidden = $wpdb->get_var("SELECT `checkbox_hidden` FROM $db WHERE `project_ID` = $project_id");
 
 
         // incoming from post
         $website_link = isset($_POST['website-link']) ? $_POST['website-link'] : '';
         $github_link = isset($_POST['github-link']) ? $_POST['github-link'] : '';
+        $checkbox_hidden = isset($_POST['checkbox_hidden']) ? 1 : 0;
         // Image Upload Handling
         if (!empty($_FILES['project-image']['name'])) {
             $uploaded_file = $_FILES['project-image'];
@@ -103,10 +108,12 @@ function save_custom_fields($post_id)
             if (!isset($upload['error']) && isset($upload['url'])) {
                 $image_link = $upload['url']; // Get the uploaded image URL
             }
+        } else {
+            $image_link = $temp_image_link;
         }
 
         // insert or update
-        if ($temp_image_link == null && $temp_github_link == null && $temp_website_link == null) {
+        if ($temp_image_link == null && $temp_github_link == null && $temp_website_link == null && $temp_checkbox_hidden == null) {
             $wpdb->insert(
                 $db,
                 [
@@ -114,7 +121,8 @@ function save_custom_fields($post_id)
                     'project_title' => $project_title,
                     'website_link' => $website_link,
                     'github_link' => $github_link,
-                    'image_link' => $image_link // Save image link
+                    'image_link' => $image_link, // Save image link
+                    'checkbox_hidden' => $checkbox_hidden
                 ]
             );
         } else {
@@ -124,7 +132,8 @@ function save_custom_fields($post_id)
                     'project_title' => $project_title,
                     'website_link' => $website_link,
                     'github_link' => $github_link,
-                    'image_link' => $image_link // Update image link
+                    'image_link' => $image_link, // Update image link
+                    'checkbox_hidden' => $checkbox_hidden
                 ],
                 ['project_ID' => $project_id]
             );
